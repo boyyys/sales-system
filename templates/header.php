@@ -12,14 +12,15 @@ $base_url = '/thrift-system/public'; // Ganti jika folder proyek berbeda
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-100">
+<body class="bg-gray-100 flex flex-col min-h-screen">
     <nav class="bg-gray-800 text-white p-4">
         <div class="container mx-auto flex justify-between items-center">
-            <a href="<?= $base_url ?>/" class="text-xl font-bold">ThriftKu</a>
+            <a href="<?= $base_url ?>" class="text-xl font-bold">ThriftKu</a>
             <div class="space-x-4">
+                <a href="<?= $base_url ?>/" class="hover:text-gray-300">Beranda</a>
                 <a href="<?= $base_url ?>/products/" class="hover:text-gray-300">Produk</a>
                 <a href="<?= $base_url ?>/sales/" class="hover:text-gray-300">Penjualan</a>
             </div>
         </div>
     </nav>
-    <div class="container mx-auto p-4">
+    <main class="container mx-auto p-4 flex-grow">
