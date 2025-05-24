@@ -1,0 +1,15 @@
+# Block access to config and templates
+<FilesMatch "^(env|db)\.php$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Hide .php extension
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.*)$ $1.php [NC,L]
+
+# Security headers
+Header set X-Content-Type-Options "nosniff"
+Header set X-Frame-Options "DENY"
