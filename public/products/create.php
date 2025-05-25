@@ -2,24 +2,6 @@
 require_once '../../config/db.php';
 require_once '../../templates/header.php';
 
-$id = $_GET['id'] ?? null;
-
-if (!$id || !is_numeric($id)) {
-    header("Location: index.php");
-    exit;
-}
-
-// Ambil data produk
-$stmt = $pdo->prepare("SELECT * FROM products WHERE product_id = ?");
-$stmt->execute([$id]);
-$product = $stmt->fetch();
-
-if (!$product) {
-    echo "<p class='text-red-500'>Produk tidak ditemukan.</p>";
-    require_once '../../templates/footer.php';
-    exit;
-}
-
 // Ambil daftar supplier
 $suppliers = $pdo->query("SELECT supplier_id, name FROM suppliers")->fetchAll();
 
@@ -39,33 +21,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        $stmt = $pdo->prepare("UPDATE products SET name = ?, category = ?, cost_price = ?, sale_price = ?, stock = ?, description = ?, supplier_id = ? WHERE product_id = ?");
-        $stmt->execute([$name, $category, $cost_price, $sale_price, $stock, $description, $supplier_id, $id]);
+        $stmt = $pdo->prepare("INSERT INTO products (name, category, cost_price, sale_price, stock, description, supplier_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
+        $stmt->execute([$name, $category, $cost_price, $sale_price, $stock, $description, $supplier_id]);
 
         header("Location: index.php?success=1");
         exit;
     } catch (PDOException $e) {
-        die("Error mengupdate produk: " . $e->getMessage());
+        die("Error menambahkan produk: " . $e->getMessage());
     }
 }
 ?>
 
-<h1 class="text-2xl font-bold mb-4">Edit Produk</h1>
+<h1 class="text-2xl font-bold mb-4">Tambah Produk</h1>
 
 <form method="POST" class="max-w-lg bg-white p-6 rounded shadow">
     <div class="mb-4">
         <label class="block mb-2 font-semibold">Nama Produk</label>
-        <input type="text" name="name" value="<?= htmlspecialchars($product['name']) ?>" required class="w-full p-2 border rounded">
+        <input type="text" name="name" required class="w-full p-2 border rounded">
     </div>
 
     <div class="mb-4">
         <label class="block mb-2 font-semibold">Kategori</label>
         <select name="category" class="w-full p-2 border rounded" required>
+            <option value="">-- Pilih Kategori --</option>
             <?php
             $categories = ['Pakaian', 'Celana', 'Aksesoris', 'Sepatu', 'Tas', 'Jaket'];
             foreach ($categories as $cat) {
-                $selected = ($product['category'] === $cat) ? 'selected' : '';
-                echo "<option value=\"$cat\" $selected>$cat</option>";
+                echo "<option value=\"$cat\">$cat</option>";
             }
             ?>
         </select>
@@ -73,23 +55,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="mb-4">
         <label class="block mb-2 font-semibold">Deskripsi</label>
-        <textarea name="description" class="w-full p-2 border rounded" rows="3" placeholder="Tulis deskripsi produk..."><?= htmlspecialchars($product['description'] ?? '') ?></textarea>
+        <textarea name="description" class="w-full p-2 border rounded" rows="3" placeholder="Tulis deskripsi produk..."></textarea>
     </div>
 
     <div class="grid grid-cols-2 gap-4 mb-4">
         <div>
             <label class="block mb-2 font-semibold">Harga Beli</label>
-            <input type="number" step="0.01" name="cost_price" value="<?= $product['cost_price'] ?>" required class="w-full p-2 border rounded">
+            <input type="number" step="0.01" name="cost_price" required class="w-full p-2 border rounded">
         </div>
         <div>
             <label class="block mb-2 font-semibold">Harga Jual</label>
-            <input type="number" step="0.01" name="sale_price" value="<?= $product['sale_price'] ?>" required class="w-full p-2 border rounded">
+            <input type="number" step="0.01" name="sale_price" required class="w-full p-2 border rounded">
         </div>
     </div>
 
     <div class="mb-4">
         <label class="block mb-2 font-semibold">Stok</label>
-        <input type="number" name="stock" value="<?= $product['stock'] ?>" required class="w-full p-2 border rounded">
+        <input type="number" name="stock" required class="w-full p-2 border rounded">
     </div>
 
     <div class="mb-4">
@@ -97,16 +79,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <select name="supplier_id" class="w-full p-2 border rounded">
             <option value="">-- Pilih Supplier --</option>
             <?php foreach ($suppliers as $supplier): ?>
-                <option value="<?= $supplier['supplier_id'] ?>" <?= ($product['supplier_id'] == $supplier['supplier_id']) ? 'selected' : '' ?>>
+                <option value="<?= $supplier['supplier_id'] ?>">
                     <?= htmlspecialchars($supplier['name']) ?>
                 </option>
             <?php endforeach; ?>
         </select>
     </div>
 
-    <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">
-        Perbarui Produk
+    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+        Simpan Produk
     </button>
 </form>
 
-<?php require_once '../../templates/footer.php'; ?>
+<?php require_once '../../templates/footer.php'; ?> 
